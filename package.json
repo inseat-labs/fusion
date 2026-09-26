@@ -1,6 +1,6 @@
 {
   "name": "@inseat-labs/inseat-fusion",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Transparent local controller for multi-model coding workflows over Claude Code and Codex CLI. Milestone 0: schemas, static policy, dry-run plans.",
   "license": "Apache-2.0",
   "type": "module",

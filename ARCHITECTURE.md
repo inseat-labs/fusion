@@ -11,7 +11,7 @@ has no code yet.
 | `src/planner` | Dry-run plan builder, renderer, invariants | implemented |
 | `src/ledger` | Ledger construction and redacting serializer | implemented |
 | `src/progress` | Leg state machine (`TRANSITIONS`), stream validator, dry-run simulator | implemented |
-| `src/cli` | `inseat-fusion plan` | implemented |
+| `src/cli` | `inseat-fusion plan`, `simulate`, and `validate-events` | implemented |
 | process supervisor, worktree isolation, verifier, evidence judge, bounded repair, atomic applicator | planned | Milestone 1+ |
 
 Toolchain: Node.js 22+, TypeScript 5 (`NodeNext` ESM), Zod 4, Vitest.

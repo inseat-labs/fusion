@@ -1,6 +1,6 @@
 # Inseat Fusion
 
-Inseat Fusion is a planned, independent open-source controller for coding
+Inseat Fusion is an early-stage, independent open-source controller for coding
 workflows that run through documented noninteractive CLI interfaces.
 
 > Status: early development (Milestone 0 starter). A dry-run CLI exists that
@@ -29,8 +29,8 @@ HydraFusion. GitHub currently documents HydraFusion only as an experimental
 Copilot CLI feature; constituent model selection and intermediate passes are not
 exposed to users. Inseat Fusion is not affiliated with or endorsed by GitHub, is
 not a clone or reverse engineering effort, and does not use GitHub internals. It
-is also distinct from Inseat Switch, which is planned as a model-migration
-compatibility checker rather than a workflow controller.
+is also distinct from Inseat Switch, a model-migration compatibility checker
+rather than a workflow controller.
 
 ## Planned workflows
 
@@ -123,7 +123,7 @@ resell credentials, proxy access, or conceal provider usage.
 
 ## Documents
 
-- [ARCHITECTURE.md](ARCHITECTURE.md): planned components, invariants, and flow
+- [ARCHITECTURE.md](ARCHITECTURE.md): components, invariants, and flow
 - [ROADMAP.md](ROADMAP.md): milestones and acceptance criteria
 - [docs/PRODUCT_PLAN.md](docs/PRODUCT_PLAN.md): audience, value hypothesis, and boundaries
 - [docs/RESEARCH.md](docs/RESEARCH.md): verified sources, claims, and open questions
@@ -131,7 +131,8 @@ resell credentials, proxy access, or conceal provider usage.
 - [docs/EVALUATION_PLAN.md](docs/EVALUATION_PLAN.md): preregistered comparison plan
 - [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md): assets, threats, and mitigations
 - [docs/HANDOFF.md](docs/HANDOFF.md): exact next implementation order
-- [examples/README.md](examples/README.md): planned, non-executable scenarios
+- [examples/README.md](examples/README.md): synthetic, non-executable scenarios
+- [CHANGELOG.md](CHANGELOG.md): release notes
 
 ## License
 

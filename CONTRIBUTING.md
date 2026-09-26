@@ -34,8 +34,9 @@ A proposal should explain the user problem, affected invariant, security impact,
 evaluation impact, and any new provider dependency. Documentation changes should
 use concise ASCII text and working relative links.
 
-Do not add a package manifest, runtime, setup recipes, benchmarks presented as
-ours, provider branding, or ownership assertions during the planning phase.
+Do not add runtime execution, setup recipes for live providers, benchmarks
+presented as ours, provider branding, or ownership assertions until the
+corresponding milestone in [ROADMAP.md](ROADMAP.md) is started.
 
 By contributing, you agree that your contribution is licensed under the Apache
 License 2.0 in [LICENSE](LICENSE).

@@ -23,7 +23,8 @@ Evaluation may reject this hypothesis.
 
 ## MVP
 
-The planning-only MVP contains static policies, dry-run planning, adapter
+The dry-run MVP (Milestone 0, complete 2026-09-19) contains static policies,
+dry-run planning, adapter
 contract fixtures for Claude Code and Codex, verification evidence schemas and
 fixtures, explicit budget and timeout schemas, cancellation semantics, progress
 events, and a provenance ledger format. It does not execute provider processes,

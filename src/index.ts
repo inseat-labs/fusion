@@ -7,3 +7,7 @@ export { renderPlan } from "./planner/render.js";
 export { INVARIANTS } from "./planner/invariants.js";
 export { ledgerFromDryRun, serializeLedger } from "./ledger/ledger.js";
 export * from "./progress/index.js";
+export { runFusion, prepareRun, detectVerifyCommand, type RunOptions, type RunIO, type RunResult } from "./runtime/run.js";
+export { applyRun, discardRun, listRuns, computeStats, readLedger } from "./runtime/runs.js";
+export { parseReview } from "./runtime/review.js";
+export { FusionError } from "./runtime/git.js";

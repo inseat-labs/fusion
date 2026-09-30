@@ -98,6 +98,15 @@ output. Anything not listed under "Verified" is unverified.
 - Parse `cached_input_tokens` and `reasoning_output_tokens`. Never synthesize a
   cost.
 - Warn when `turn.completed` is present but the exit code is non-zero.
+- 2026-09-30, from a real run: Codex emits top-level `error` events while it
+  retries (`"Reconnecting... 1/5 (...)"`). They are fatal only when no
+  `turn.completed` follows; otherwise they become warnings. The last error is
+  used as the summary. Fixtures: `reconnect-then-success.jsonl`,
+  `reconnect-exhausted.jsonl`.
+- The prompt is passed after `--` and `--model` is omitted unless the user
+  sets one, so the CLI's configured default model is used. `exec` prints
+  "Reading additional input from stdin..." to stderr; Fusion's stdin is
+  `/dev/null`, so it proceeds immediately.
 
 ### Uncertainties
 

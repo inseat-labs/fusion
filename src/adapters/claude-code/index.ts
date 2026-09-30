@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { AdapterCapabilities, ResultEnvelope } from "../../schemas/adapter.js";
-import type { Adapter, InvocationRequest } from "../types.js";
+import { CLI_DEFAULT_MODEL, type Adapter, type InvocationRequest } from "../types.js";
 
 export const claudeCodeCapabilities: AdapterCapabilities = {
   adapter: "claude-code",
@@ -48,7 +48,8 @@ export const claudeCodeAdapter: Adapter = {
   capabilities: claudeCodeCapabilities,
 
   planInvocation(request: InvocationRequest) {
-    const args = ["-p", request.instruction, "--output-format", "json", "--model", request.binding.model];
+    const args = ["-p", request.instruction, "--output-format", "json"];
+    if (request.binding.model !== CLI_DEFAULT_MODEL) args.push("--model", request.binding.model);
     if (request.readOnly) {
       args.push("--permission-mode", "dontAsk", "--tools", READ_ONLY_TOOLS, "--allowedTools", READ_ONLY_TOOLS);
     } else {

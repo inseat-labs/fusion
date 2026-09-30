@@ -29,7 +29,7 @@ GitHub reports results for best-tuned fixed HydraFusion policies on TerminalBenc
 article reports respectively: 67 percent lower estimated cost and +4.9 quality
 points; 36 percent lower estimated cost and -1.5 points; and 65 percent lower
 estimated cost and -0.1 points. These are GitHub-controlled offline best-tuned
-results, not Inseat Fusion results or universal expectations. They depend on the
+results, not Fusion results or universal expectations. They depend on the
 benchmark revisions, model pool, workflow, pricing, grading, execution limits,
 missing-result treatment, and common medium reasoning level. CheckpointBench is
 internal, policies were refined across all three evaluation sets, and two invalid
@@ -44,7 +44,7 @@ Sources:
 
 The HyDRA preprint describes adaptive multi-agent language model routing and is
 useful research context for dynamic orchestration. It is not evidence that
-Inseat Fusion's proposed policy or implementation works.
+Fusion's proposed policy or implementation works.
 
 - [HyDRA preprint](https://arxiv.org/abs/2605.17106)
 
@@ -54,7 +54,7 @@ Claude Code documents programmatic use, including print mode, structured output
 formats, tool controls, and turn limits. Its agent teams documentation describes
 an experimental coordinated-team capability, while sub-agents are delegated
 agents with separate context and configured tools. These are related concepts,
-not an Inseat Fusion implementation contract by themselves.
+not a Fusion implementation contract by themselves.
 
 - [Claude Code programmatic usage](https://code.claude.com/docs/en/headless)
 - [Claude Code agent teams](https://code.claude.com/docs/en/agent-teams)

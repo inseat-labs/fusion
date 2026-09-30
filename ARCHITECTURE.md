@@ -1,20 +1,52 @@
 # Architecture
 
-Milestone 0 components exist under `src/`. Everything marked "planned" below
-has no code yet.
+Fusion has two halves in one package: the Milestone 0 contracts and dry-run
+planner, and the `run` runtime that executes one writer -> verify -> review ->
+repair loop. Everything marked "planned" below has no code yet.
 
 | Module | Component | Status |
 | --- | --- | --- |
-| `src/schemas` | Versioned contracts (task, policy, adapter, plan, ledger) | implemented |
-| `src/policy` | Static policy engine and default rules | implemented |
-| `src/adapters` | Claude Code and Codex adapter contracts, see [docs/CLI_CONTRACTS.md](docs/CLI_CONTRACTS.md) | invocation planning and output parsing only |
+| `src/schemas` | Versioned contracts (task, policy, adapter, plan, ledger, progress, run report, run ledger) | implemented |
+| `src/policy` | Static policy engine and default rules | implemented (used by `plan`) |
+| `src/adapters` | Claude Code and Codex invocation planning and output parsing, see [docs/CLI_CONTRACTS.md](docs/CLI_CONTRACTS.md) | implemented, used by `run` |
 | `src/planner` | Dry-run plan builder, renderer, invariants | implemented |
-| `src/ledger` | Ledger construction and redacting serializer | implemented |
+| `src/ledger` | Dry-run ledger construction and redacting serializer | implemented |
 | `src/progress` | Leg state machine (`TRANSITIONS`), stream validator, dry-run simulator | implemented |
-| `src/cli` | `inseat-fusion plan`, `simulate`, and `validate-events` | implemented |
-| process supervisor, worktree isolation, verifier, evidence judge, bounded repair, atomic applicator | planned | Milestone 1+ |
+| `src/runtime/process.ts` | Process supervisor: no-shell spawn, own process group, timeout -> SIGTERM -> SIGKILL of the group, per-step log | implemented |
+| `src/runtime/git.ts` | Worktree isolation from `HEAD`, `.git/info/exclude`, patch/diffstat collection | implemented |
+| `src/runtime/review.ts` | Writer, repair, and reviewer prompts; tolerant JSON verdict parser that fails closed | implemented |
+| `src/runtime/run.ts` | The write -> verify -> review -> repair loop, ledger append, artifacts | implemented |
+| `src/runtime/runs.ts` | `apply`, `discard`, `list`, `stats`, `.fusion/ledger.jsonl` | implemented |
+| `src/runtime/events.ts` | Emits real `origin: "runtime"` `ProgressStream`s | implemented |
+| `src/cli` | `run`, `apply`, `discard`, `list`, `stats`, `plan`, `simulate`, `validate-events` | implemented |
+| Cascade escalation, Parallel candidates, evidence judge, base-drift check before apply, sandboxing of the verify command | planned | later |
 
 Toolchain: Node.js 22+, TypeScript 5 (`NodeNext` ESM), Zod 4, Vitest.
+
+## `run` data flow
+
+```text
+fusion run "<task>"
+  -> repo root, HEAD, dirty-tree warning, verify command (flag | npm test | none)
+  -> git worktree add --detach .fusion/runs/<id>/work HEAD
+  -> symlink the user's node_modules into the worktree if present (excluded from the patch)
+  -> writer (claude -p ... --permission-mode acceptEdits | codex exec --sandbox workspace-write)
+  -> git add -A inside the worktree; empty diff => no-changes
+  -> verify (user's command via shell, cwd = worktree)
+  -> reviewer, read-only, gets task + diff + verify result, must answer JSON
+       (skipped while verify fails and a repair is still available)
+  -> failed verify or blocking findings, repairs left => writer repair prompt, loop
+  -> patch.diff, report.{md,json}, events.json, logs/, ledger line
+  -> user decides: fusion apply <id>  (git apply --3way into their tree)
+```
+
+The runtime never commits, never switches branches, and never writes to the
+user's working tree. The only command that does is `apply`, which the user runs
+explicitly.
+
+Statuses: `ready` (verify passed or none configured, and reviewer approved or
+none configured), `needs-attention` (patch kept, not accepted), `no-changes`,
+`writer-failed`.
 
 ## Invariants
 
@@ -38,11 +70,18 @@ when sequence numbers are contiguous from 0, timestamps never regress, every
 leg's first event is `planned`, every transition is in the table, and every
 event shares the stream's `workflowId` and `origin`.
 
-`origin` is either `dry-run-simulation` or `runtime`. Only the former exists
-today. The dry-run plan embeds the state table under `progressModel` as a
-specification for a future runtime; it never contains simulated events.
+`origin` is either `dry-run-simulation` (from `simulate`) or `runtime` (from
+`run`, saved as `.fusion/runs/<id>/events.json`). Each writer, verify, and
+review step is one leg. The dry-run plan embeds the state table under
+`progressModel` as a specification; it never contains simulated events.
 
 ## Planned components
+
+The sections below describe the longer-term design. Parts of it now exist in
+`src/runtime` in a simpler form: the process supervisor, worktree isolation,
+a deterministic verify gate (the user's own command), a read-only critic, and
+bounded repair. Applying is `git apply --3way` run by the user, not the
+atomic applicator described below.
 
 ### CLI and configuration
 

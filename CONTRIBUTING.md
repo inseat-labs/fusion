@@ -1,6 +1,6 @@
 # Contributing
 
-Inseat Fusion is in early development. A Milestone 0 dry-run planner exists.
+Fusion is in early development. A Milestone 0 dry-run planner exists.
 
 ## Development
 

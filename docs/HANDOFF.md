@@ -24,8 +24,17 @@ Implemented:
   for nominal / cancelled / timed-out / budget-exhausted at any leg; 4 valid and
   9 invalid fixtures; CLI `simulate` and `validate-events`.
 
-Not implemented: anything that runs. No child processes, no worktrees, no
-repository reads or writes, no verifier, no judge, no repair, no atomic apply.
+Not implemented in 0.1.0: anything that runs.
+
+### Unreleased: the `run` runtime (2026-09-30)
+
+`fusion run` now executes one writer -> verify -> read-only review ->
+bounded repair loop in `git worktree add --detach .fusion/runs/<id>/work HEAD`
+(`src/runtime/`), plus `apply`, `discard`, `list`, `stats`. `npm test` runs 80
+tests, including fake-agent runs in real temp git repos. One real end-to-end
+run (Claude Code 2.1.285 writer, codex-cli 0.153.4 reviewer) is captured in
+the README. Still not implemented: judge, Cascade, Parallel, atomic apply with
+base-drift check, boundary-lineage envelopes.
 
 ## Decisions taken
 
@@ -43,10 +52,9 @@ repository reads or writes, no verifier, no judge, no repair, no atomic apply.
 
 1. Read `docs/BOUNDARY_LINEAGE.md` (design only) and `docs/ADR-003-JEV-ADVISORY-ONLY.md`
    before Milestone 1 so the runtime emits what those documents require.
-2. Milestone 1: process supervisor with timeout and cancellation that emits
-   `origin: "runtime"` events passing `validateProgressStream`; worktree
-   isolation from an immutable base; fault-injection tests proving the base is
-   never modified on failure.
+2. Milestone 1 leftovers: boundary-lineage envelopes, a base-drift check before
+   `apply`, and fault-injection tests for cancellation cleanup. The process
+   supervisor, worktree isolation, and `origin: "runtime"` events exist.
 3. Inspect isolated worktrees for `.claude/settings.json` hooks and `.mcp.json`
    before launching `claude -p`, since `-p` runs them without a trust prompt.
 4. Do not add Parallel, learned routing, textual merge, or any Jev SDK.

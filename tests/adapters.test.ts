@@ -93,6 +93,24 @@ describe("codex adapter", () => {
     expect(env.terminalReason).toBe("turn.failed");
   });
 
+  it("treats retried 'Reconnecting' error events as warnings when the turn completes", async () => {
+    const env = codexAdapter.parseOutput(await load("codex", "reconnect-then-success.jsonl"), 0);
+    expect(env.outcome).toBe("succeeded");
+    expect(env.summary).toContain('"verdict":"approve"');
+    expect(env.warnings[0]).toContain("Reconnecting... 1/5");
+  });
+
+  it("reports the last error message when retries are exhausted", async () => {
+    const env = codexAdapter.parseOutput(await load("codex", "reconnect-exhausted.jsonl"), 1);
+    expect(env.outcome).toBe("failed");
+    expect(env.summary).toBe("unexpected status 403 Forbidden: Free tier users do not have access to this model.");
+  });
+
+  it("separates flags from the prompt with -- and omits --model for the CLI default", () => {
+    const plan = codexAdapter.planInvocation({ binding: { adapter: "codex", model: "default" }, instruction: "--looks-like-a-flag", cwd: "/w", readOnly: false, timeoutSeconds: 10 });
+    expect(plan.args).toEqual(["exec", "--json", "--sandbox", "workspace-write", "--", "--looks-like-a-flag"]);
+  });
+
   it("never invents usage numbers when they are absent", async () => {
     const env = codexAdapter.parseOutput(await load("codex", "missing-usage.jsonl"), 0);
     expect(env.usage).toEqual({ status: "unavailable", reason: "turn.completed had no usage" });

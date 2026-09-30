@@ -1,12 +1,12 @@
-# ADR-001: Keep Inseat Fusion Separate from Inseat Switch
+# ADR-001: Keep Fusion Separate from Switch
 
 - Status: accepted for planning
 - Date: 2026-09-16
 
 ## Context
 
-Inseat Switch is planned to test whether a candidate model preserves an existing
-workflow contract during migration. Inseat Fusion is planned to select and
+Switch is planned to test whether a candidate model preserves an existing
+workflow contract during migration. Fusion is planned to select and
 control compound coding workflows during task execution. Combining them would
 mix migration evidence with orchestration, credentials, process supervision,
 repository mutation, and a much larger threat model.

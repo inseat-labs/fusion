@@ -1,6 +1,6 @@
 # Competitors and Overlap
 
-Competitor overlap is substantial, and Inseat Fusion's viability is unvalidated.
+Competitor overlap is substantial, and Fusion's viability is unvalidated.
 The project should not proceed on positioning alone.
 
 ## Project HydraFusion
@@ -9,7 +9,7 @@ GitHub publicly describes adaptive selection among Single, Cascade, and Critique
 workflows with accounting, bounded execution, isolated review, and fail-safe
 application. GitHub's community announcement says the experimental feature is
 currently only in Copilot CLI, with constituent model selection unavailable and
-intermediate passes hidden. This is direct conceptual overlap. Inseat Fusion is
+intermediate passes hidden. This is direct conceptual overlap. Fusion is
 an independent proposal limited to documented external CLI interfaces,
 transparent local ledgers, deterministic gates, and an atomic patch boundary.
 It is not affiliated with or endorsed by GitHub, does not use GitHub internals,
@@ -28,7 +28,7 @@ evaluation against current Quorum behavior.
 
 MassGen is also a direct OSS comparison. Its project claims parallel
 cross-model refinement and voting, Claude Code and Codex backends, isolated
-workspaces, budgets, automation, and a permission ledger. Inseat Fusion cannot
+workspaces, budgets, automation, and a permission ledger. Fusion cannot
 differentiate merely by supporting multiple CLIs, isolation, or visible costs.
 The narrower hypothesis is that a small fixed-policy engine with fail-closed
 gates and one selected atomic patch is easier to audit and evaluate. That must
@@ -44,14 +44,14 @@ ledgering, but complexity alone is not differentiation.
 ## Cline, OpenHands, and SWE-agent
 
 These projects cover broad coding-agent execution, tools, repository changes,
-and evaluation. Inseat Fusion is intentionally narrower: a local workflow
+and evaluation. Fusion is intentionally narrower: a local workflow
 controller over existing documented CLIs, not another general autonomous coding
 environment. Integration burden and duplicated safety mechanisms remain risks.
 
 ## Claude agent teams and sub-agents
 
 Claude Code offers native team and delegated-agent concepts. They may make some
-external coordination redundant for Claude-only users. Inseat Fusion must show
+external coordination redundant for Claude-only users. Fusion must show
 that cross-CLI policy transparency and deterministic patch control justify an
 additional layer.
 

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { AdapterCapabilities, ResultEnvelope } from "../../schemas/adapter.js";
-import type { Adapter, InvocationRequest } from "../types.js";
+import { CLI_DEFAULT_MODEL, type Adapter, type InvocationRequest } from "../types.js";
 
 export const codexCapabilities: AdapterCapabilities = {
   adapter: "codex",
@@ -44,9 +44,10 @@ export const codexAdapter: Adapter = {
   capabilities: codexCapabilities,
 
   planInvocation(request: InvocationRequest) {
-    const args = ["exec", "--json", "--model", request.binding.model];
+    const args = ["exec", "--json"];
+    if (request.binding.model !== CLI_DEFAULT_MODEL) args.push("--model", request.binding.model);
     args.push("--sandbox", request.readOnly ? "read-only" : "workspace-write");
-    args.push(request.instruction);
+    args.push("--", request.instruction);
     return {
       adapter: "codex",
       executable: "codex",
@@ -91,10 +92,12 @@ export const codexAdapter: Adapter = {
     const lastMessage = [...items].reverse().find((i) => i.type === "agent_message")?.text;
     const changedFiles = [...new Set(items.filter((i) => i.type === "file_change").flatMap((i) => (i.changes ?? []).map((c) => c.path)))];
     const failed = first(events, TurnFailed);
-    const threadError = first(events, ThreadError);
+    const errors = events.map((e) => ThreadError.safeParse(e)).filter((r) => r.success).map((r) => r.data.message);
+    const threadError = errors.length > 0 ? { message: errors.at(-1)! } : undefined;
     const completed = first(events, TurnCompleted);
 
-    if (failed || threadError) {
+    // Codex emits `error` events for retried transport failures ("Reconnecting... 1/5"); only fatal if the turn never completed.
+    if (failed || (threadError && !completed)) {
       return {
         ...base,
         providerRef: threadId,
@@ -115,7 +118,7 @@ export const codexAdapter: Adapter = {
         usage: unavailable("turn.completed event absent"),
       };
     }
-    const warnings: string[] = [];
+    const warnings = errors.map((m) => `transient error event: ${m}`);
     if (exitCode !== null && exitCode !== 0) warnings.push(`turn.completed observed but exit code was ${exitCode}`);
     return {
       ...base,

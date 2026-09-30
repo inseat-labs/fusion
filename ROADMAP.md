@@ -20,6 +20,15 @@ no process execution or repository mutation.
 
 ## Milestone 1: isolated Single workflow
 
+Status: largely shipped as `fusion run` (Unreleased). One writer runs in a
+detached worktree from `HEAD`, the user's verify command gates it, the process
+supervisor enforces per-step timeouts on the whole process group, and the base
+worktree is never modified. Application is the user's explicit `apply`
+(`git apply --3way`). Still open: boundary-lineage envelopes, a base-drift
+check before apply, and fault-injection tests for cancellation cleanup.
+Verified with one real Claude Code writer + Codex reviewer run on 2026-09-30
+(README "Real demo").
+
 Lineage: emit `version: 1` boundary envelopes for `base -> solver -> verify ->
 apply` per [docs/BOUNDARY_LINEAGE.md](docs/BOUNDARY_LINEAGE.md), with digest
 continuity checked before atomic application.
@@ -32,6 +41,12 @@ continuity checked before atomic application.
 Exit criterion: fault-injection tests establish atomicity and cleanup behavior.
 
 ## Milestone 2: Cascade and Critique
+
+Status: Critique with bounded repair is shipped in `run` (cross-vendor read-only
+reviewer, up to two repairs, re-verify and re-review after each). Per-run
+outcomes go to `.fusion/ledger.jsonl` and `fusion stats`. Cascade
+escalation and per-leg cost for Codex (the CLI reports tokens, not cost) are
+still open.
 
 Lineage: extend envelopes to `critique`, `repair`, and `select`
 transformations; add offline replay verification and the ledger `lineage`

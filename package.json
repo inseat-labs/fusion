@@ -1,14 +1,14 @@
 {
-  "name": "@inseat-labs/inseat-fusion",
+  "name": "@inseat-labs/fusion",
   "version": "0.1.0",
-  "description": "Transparent local controller for multi-model coding workflows over Claude Code and Codex CLI. Milestone 0: schemas, static policy, dry-run plans.",
+  "description": "One command: Claude writes, your tests check, Codex reviews, one repair. You get a verified patch in an isolated git worktree and a ledger of which agent delivers in your repo.",
   "license": "Apache-2.0",
   "type": "module",
   "engines": {
     "node": ">=22"
   },
   "bin": {
-    "inseat-fusion": "./dist/cli/main.js"
+    "fusion": "./dist/cli/main.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -18,7 +18,8 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node -e \"require('node:fs').chmodSync('dist/cli/main.js', 0o755)\"",
+    "prepare": "npm run build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -29,9 +30,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/inseat-labs/inseat-fusion.git"
+    "url": "https://github.com/inseat-labs/fusion.git"
   },
-  "homepage": "https://inseat.app",
+  "homepage": "https://fusion.inseat.app",
+  "bugs": {
+    "url": "https://github.com/inseat-labs/fusion/issues"
+  },
   "keywords": [
     "coding-agents",
     "claude-code",

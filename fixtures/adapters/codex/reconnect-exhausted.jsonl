@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"thr_synthetic_009"}
+{"type":"turn.started"}
+{"type":"error","message":"Reconnecting... 1/5 (unexpected status 403 Forbidden: Free tier users do not have access to this model.)"}
+{"type":"error","message":"unexpected status 403 Forbidden: Free tier users do not have access to this model."}

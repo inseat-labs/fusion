@@ -2,7 +2,7 @@
 
 ## Current status
 
-Inseat Fusion is early-stage software. Milestone 0 (complete 2026-09-19) is a
+Fusion is early-stage software. Milestone 0 (complete 2026-09-19) is a
 dry-run CLI that validates task files, selects a workflow with a static policy,
 renders planned legs, commands, gates, and budgets, and validates or simulates
 progress-event streams. It launches no provider process, reads or modifies no

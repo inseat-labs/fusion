@@ -23,7 +23,8 @@ You get a verified patch in an isolated worktree; your branch is never touched.
 
 Usage:
   fusion run "<task>" [--verify "<cmd>"] [--writer claude|codex] [--reviewer codex|claude|none]
-                    [--repairs 0|1|2] [--model-writer <m>] [--model-reviewer <m>] [--timeout <sec>] [--yes]
+                    [--repairs 0|1|2] [--model-writer <m>] [--model-reviewer <m>] [--timeout <sec>]
+                    [--max-budget <usd>] [--yes]
   fusion apply <id|latest>      git apply --3way the run's patch into your working tree
   fusion discard <id|latest>    remove the run's worktree and files (ledger entry is kept)
   fusion list                   runs in this repo with their status
@@ -45,6 +46,8 @@ run options:
   --repairs <n>      Repair rounds after a failed verify or blocking review (default 1, max 2).
   --model-writer, --model-reviewer   Model passed to the CLI (default: the CLI's configured default).
   --timeout <sec>    Per-step timeout; kills the whole process group (default 900).
+  --max-budget <usd> Positive USD cap passed to Claude as --max-budget-usd on the write and every repair step.
+                     Not supported by codex; with --writer codex it only prints a warning.
   --yes              Do not ask for confirmation before spending CLI quota.
   Agent executables can be overridden with FUSION_CLAUDE_BIN / FUSION_CODEX_BIN.
 
@@ -142,7 +145,7 @@ export async function main(argv: string[]): Promise<number> {
 
 const RUNTIME_COMMANDS = new Set(["run", "apply", "discard", "list", "stats"]);
 
-const RUN_VALUE_FLAGS = new Set(["--verify", "--writer", "--reviewer", "--repairs", "--model-writer", "--model-reviewer", "--timeout"]);
+const RUN_VALUE_FLAGS = new Set(["--verify", "--writer", "--reviewer", "--repairs", "--model-writer", "--model-reviewer", "--timeout", "--max-budget"]);
 
 function parseRunArgs(rest: string[], cwd: string): { options: RunOptions; yes: boolean } {
   const values = new Map<string, string>();
@@ -175,7 +178,13 @@ function parseRunArgs(rest: string[], cwd: string): { options: RunOptions; yes: 
   if (values.has("--verify")) options.verify = values.get("--verify")!;
   if (values.has("--model-writer")) options.writerModel = values.get("--model-writer")!;
   if (values.has("--model-reviewer")) options.reviewerModel = values.get("--model-reviewer")!;
+  if (values.has("--max-budget")) options.maxBudgetUsd = parseUsd(values.get("--max-budget")!);
   return { options, yes };
+}
+
+/** Plain decimals only ("0x10", "1e3", "" become NaN); the positive-range check lives in prepareRun. */
+function parseUsd(raw: string): number {
+  return /^(\d+\.?\d*|\.\d+)$/.test(raw.trim()) ? Number(raw) : Number.NaN;
 }
 
 async function confirm(question: string): Promise<boolean> {
@@ -215,6 +224,7 @@ async function runtimeCommand(command: string, rest: string[], cwd: string): Pro
     err(`  verify:   ${pre.verifyCommand ?? "NONE (no verify gate)"}`);
     err(`  reviewer: ${options.reviewer}${options.reviewerModel ? ` (${options.reviewerModel})` : ""}`);
     err(`  repairs:  up to ${options.repairs}; timeout ${options.timeoutSeconds}s per step`);
+    if (options.maxBudgetUsd !== undefined) err(`  budget:   $${options.maxBudgetUsd} per Claude write/repair step`);
     err("This uses your own Claude Code / Codex CLI logins and quota.");
     if (!(await confirm("Proceed? [y/N] "))) {
       err("aborted.");

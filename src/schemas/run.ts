@@ -70,6 +70,8 @@ export const RunReportSchema = z.object({
   reviews: z.array(ReviewOutcomeSchema),
   steps: z.array(AgentStepSchema),
   repairsAllowed: z.number().int().min(0).max(2),
+  /** USD cap passed to the Claude CLI per write/repair step; null when not set. */
+  maxBudgetUsd: z.number().positive().nullable().default(null),
   repairsUsed: z.number().int().min(0).max(2),
   files: z.array(z.string()),
   diffstat: z.string(),

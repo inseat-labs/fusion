@@ -3,6 +3,10 @@
 One command: Claude writes, your tests check, Codex reviews, one repair — you
 get a verified patch; your branch stays untouched.
 
+![fusion run: Claude writes, tests pass, Codex approves, then fusion apply](docs/demo.gif)
+
+<sub>A real run: Fusion adding its own <code>--max-budget</code> option (task text shortened; waits sped up from 5m 48s).</sub>
+
 > Status: early (0.x, unreleased runtime). `run` executes real Claude Code and
 > Codex CLIs with your own logins. Expect rough edges; see
 > [Limitations](#limitations).
@@ -130,7 +134,8 @@ human merge decision.
 
 ```text
 fusion run "<task>" [--verify "<cmd>"] [--writer claude|codex] [--reviewer codex|claude|none]
-                  [--repairs 0|1|2] [--model-writer <m>] [--model-reviewer <m>] [--timeout <sec>] [--yes]
+                  [--repairs 0|1|2] [--model-writer <m>] [--model-reviewer <m>] [--timeout <sec>]
+                  [--max-budget <usd>] [--yes]
 fusion apply <id|latest>     git apply --3way the run's patch into your working tree
 fusion discard <id|latest>   remove the run's worktree and files (ledger entry is kept)
 fusion list                  runs in this repo with their status
@@ -140,6 +145,11 @@ fusion stats                 per-writer first-try verify pass rate, approval rat
 - Writer defaults to `claude`; reviewer defaults to the other vendor.
   `--repairs` defaults to 1; `--timeout` is per step (default 900s) and kills
   the whole process group.
+- `--max-budget <usd>` must be a positive number. With a `claude` writer it is
+  passed as `--max-budget-usd <usd>` to the write step and every repair step
+  (the cap is per step, enforced by the Claude CLI) and recorded in the run
+  report. Codex has no equivalent, so with `--writer codex` fusion only prints
+  a warning.
 - Writer: `claude -p … --permission-mode acceptEdits` or
   `codex exec --sandbox workspace-write`, with the worktree as cwd. Reviewer:
   `codex exec --sandbox read-only` or `claude -p … --permission-mode dontAsk`
@@ -162,7 +172,8 @@ fusion stats                 per-writer first-try verify pass rate, approval rat
   No parallel candidates or Cascade escalation yet.
 - Works from `HEAD`: uncommitted changes are not included (Fusion warns).
 - Cost is only shown when a CLI reports it (Claude Code does; Codex reports
-  tokens only). No budget enforcement across the run.
+  tokens only). `--max-budget` caps each Claude step; there is no cap across
+  the whole run and none for Codex. Real runs on this repo cost $0.23–$2.02.
 - The reviewer verdict is a JSON heuristic: bare, fenced, or embedded JSON is
   accepted; anything else is "unavailable". A reviewer can still be wrong.
 - Your verify command runs with your permissions in the worktree; it is not

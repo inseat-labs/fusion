@@ -4,7 +4,7 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/); while the version is `0.x`, any
 release may contain breaking changes.
 
-## Unreleased
+## 0.2.0 - 2026-10-13
 
 Fusion now executes. One command runs a write -> verify -> review -> repair
 loop across Claude Code and Codex in an isolated git worktree and hands back a
@@ -46,6 +46,12 @@ patch; the user's working tree and branch are never modified by `run`.
   configured default; Codex prompts are passed after `--`.
 - Tests using fake agent executables and real temporary git repos (80 tests
   in total), plus Codex reconnect-error fixtures.
+
+- `fusion run --max-budget <usd>`: caps each Claude write and repair step via
+  `--max-budget-usd`; recorded in the run report; warns that the cap does not
+  apply to a Codex writer. Written by Fusion on its own repository (Claude wrote,
+  Codex approved).
+- README demo GIF of that real run.
 
 ### Changed
 

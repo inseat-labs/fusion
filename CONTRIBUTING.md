@@ -1,6 +1,8 @@
 # Contributing
 
-Fusion is in early development. A Milestone 0 dry-run planner exists.
+Fusion is early (0.x). `fusion run` executes Claude Code and Codex for real; `plan` and `simulate` stay dry-run. First pull requests are welcome; issues labelled [good first issue](https://github.com/inseat-labs/fusion/labels/good%20first%20issue) are a good start. Tests use fake agent CLIs, so you do not need Claude or Codex installed to contribute.
+
+By taking part you agree to the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Development
 

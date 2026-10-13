@@ -28,6 +28,10 @@ function headline(r: RunReport): string {
   }
 }
 
+function budgetText(r: RunReport): string {
+  return `$${r.maxBudgetUsd} per Claude write/repair step${r.writer.vendor === "claude" ? "" : " (not applied: writer is codex)"}`;
+}
+
 export function renderSummary(r: RunReport, runRel: string): string {
   const lines: string[] = [];
   const row = (k: string, v: string) => lines.push(`${k.padEnd(10)}${v}`);
@@ -61,6 +65,7 @@ export function renderSummary(r: RunReport, runRel: string): string {
     }
   }
   row("Repairs", `${r.repairsUsed} of ${r.repairsAllowed} used`);
+  if (r.maxBudgetUsd !== null) row("Budget", budgetText(r));
   row("Changed", r.files.length === 0 ? "no files" : `${r.files.length} file(s), +${r.insertions} -${r.deletions}`);
   if (r.diffstat) for (const l of r.diffstat.split("\n")) lines.push(`          ${l.trim()}`);
   const cost = r.steps.map((s) => s.costUsd).filter((c): c is number => c !== null);
@@ -84,6 +89,7 @@ export function renderReportMarkdown(r: RunReport): string {
   const out: string[] = [`# Fusion run ${r.id}`, "", `- **Task:** ${r.task}`, `- **Status:** ${r.status}`, `- **Base:** ${r.baseRevision}`, `- **Writer:** ${who(r.writer.vendor, r.writer.model)}`];
   out.push(`- **Reviewer:** ${r.reviewer ? who(r.reviewer.vendor, r.reviewer.model) : "none"}`);
   out.push(`- **Verify:** ${r.verifyCommand ? `\`${r.verifyCommand}\` (${r.verifySource})` : "none"}`);
+  if (r.maxBudgetUsd !== null) out.push(`- **Max budget:** ${budgetText(r)}`);
   out.push(`- **Repairs:** ${r.repairsUsed} of ${r.repairsAllowed}`, `- **Duration:** ${formatDuration(r.durationMs)}`, "");
   out.push("## Steps", "", "| # | Kind | Agent | Outcome | Duration | Log |", "| --- | --- | --- | --- | --- | --- |");
   r.steps.forEach((s, i) => out.push(`| ${i + 1} | ${s.kind} | ${who(s.vendor, s.model)} | ${s.outcome} | ${formatDuration(s.durationMs)} | ${s.log} |`));

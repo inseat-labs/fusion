@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -179,6 +179,40 @@ describe("fusion run", () => {
     expect(codexArgs.slice(codexArgs.indexOf("-c"), codexArgs.indexOf("-c") + 3)).toEqual(["-c", 'model_provider="openai"', "--"]);
   });
 
+  it("passes --max-budget-usd to the Claude writer on write and every repair, not to the reviewer", async () => {
+    const repo = makeRepo();
+    const fakes = makeFakeAgents({ claude: `write("value.txt", call === 1 ? "almost\\n" : "fixed\\n"); reply("ok");`, codex: APPROVE });
+    const { report, runDir } = await runFusion(options(repo, fakes, { maxBudgetUsd: 2.5 }), silent);
+    expect(report.status).toBe("ready");
+    expect(report.maxBudgetUsd).toBe(2.5);
+    for (const call of [1, 2]) {
+      const args = fakes.args("claude", call).args;
+      expect(args[args.indexOf("--max-budget-usd") + 1]).toBe("2.5");
+    }
+    expect(fakes.args("codex", 1).args).not.toContain("--max-budget-usd");
+    expect(JSON.parse(readFileSync(join(runDir, "report.json"), "utf8")).maxBudgetUsd).toBe(2.5);
+    expect(readFileSync(join(runDir, "report.md"), "utf8")).toContain("**Max budget:** $2.5");
+  });
+
+  it("omits --max-budget-usd and records null when no budget is set", async () => {
+    const repo = makeRepo();
+    const fakes = makeFakeAgents({ claude: `write("value.txt", "fixed\\n"); reply("ok");`, codex: APPROVE });
+    const { report } = await runFusion(options(repo, fakes), silent);
+    expect(report.maxBudgetUsd).toBeNull();
+    expect(fakes.args("claude", 1).args).not.toContain("--max-budget-usd");
+  });
+
+  it("warns that the budget only applies to Claude when the writer is codex", async () => {
+    const repo = makeRepo();
+    const fakes = makeFakeAgents({ codex: `write("value.txt", "fixed\\n"); reply("ok");`, claude: APPROVE });
+    const warnings: string[] = [];
+    const { report } = await runFusion(options(repo, fakes, { writer: "codex", reviewer: "claude", maxBudgetUsd: 3 }), { status: () => undefined, warn: (w) => warnings.push(w) });
+    expect(warnings.join("\n")).toContain("only applies to Claude");
+    expect(report.maxBudgetUsd).toBe(3);
+    expect(fakes.args("codex", 1).args).not.toContain("--max-budget-usd");
+    expect(fakes.args("claude", 1).args).not.toContain("--max-budget-usd");
+  });
+
   it("writer that changes nothing yields no-changes and skips verify and review", async () => {
     const repo = makeRepo();
     const fakes = makeFakeAgents({ claude: `reply("I could not find anything to change");` });
@@ -288,6 +322,33 @@ describe("fusion cli: run, list, apply, discard, stats", () => {
     expect((await cli(["-C", repo, "run", "--yes"])).code).toBe(2);
     expect((await cli(["-C", repo, "run", "x", "--writer", "gpt", "--yes"])).code).toBe(2);
     expect((await cli(["-C", repo, "run", "x", "--repairs", "5", "--yes"], { FUSION_CLAUDE_BIN: "/bin/true", FUSION_CODEX_BIN: "/bin/true" })).code).toBe(2);
+  });
+
+  it("parses --max-budget and passes it to the Claude CLI", async () => {
+    const repo = makeRepo();
+    const fakes = makeFakeAgents({ claude: `write("value.txt", "fixed\\n"); reply("ok");`, codex: APPROVE });
+    const env = { FUSION_CLAUDE_BIN: fakes.bins.claude, FUSION_CODEX_BIN: fakes.bins.codex, FAKE_STATE_DIR: fakes.stateDir };
+    const run = await cli(["-C", repo, "run", "make value.txt say fixed", "--verify", "node check.js", "--max-budget", "0.75", "--yes", "--timeout", "20"], env);
+    expect(run.code).toBe(0);
+    expect(run.out).toMatch(/Budget\s+\$0\.75 per Claude write\/repair step/);
+    const args = fakes.args("claude", 1).args;
+    expect(args.slice(args.indexOf("--max-budget-usd"), args.indexOf("--max-budget-usd") + 2)).toEqual(["--max-budget-usd", "0.75"]);
+    const [id] = readdirSync(join(repo, ".fusion", "runs"));
+    expect(JSON.parse(readFileSync(join(repo, ".fusion", "runs", id!, "report.json"), "utf8")).maxBudgetUsd).toBe(0.75);
+  });
+
+  it.each(["0", "-1", "abc", "", "1e3", "0x10", "Infinity", "1.5usd"])("rejects --max-budget %j as a usage error", async (value) => {
+    const repo = makeRepo();
+    const r = await cli(["-C", repo, "run", "x", "--max-budget", value, "--yes"], { FUSION_CLAUDE_BIN: "/bin/true", FUSION_CODEX_BIN: "/bin/true" });
+    expect(r.code).toBe(2);
+    expect(r.err).toContain("--max-budget must be a positive number");
+  });
+
+  it("rejects --max-budget without a value", async () => {
+    const repo = makeRepo();
+    const r = await cli(["-C", repo, "run", "x", "--yes", "--max-budget"]);
+    expect(r.code).toBe(2);
+    expect(r.err).toContain("--max-budget requires a value");
   });
 });
 

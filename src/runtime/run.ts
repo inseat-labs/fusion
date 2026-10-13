@@ -24,6 +24,8 @@ export interface RunOptions {
   writerModel?: string;
   reviewerModel?: string;
   timeoutSeconds: number;
+  /** Per-step USD cap for Claude write/repair steps (`--max-budget-usd`); ignored for codex. */
+  maxBudgetUsd?: number;
   bins?: Partial<Record<Vendor, string>>;
   env?: NodeJS.ProcessEnv;
   heartbeatMs?: number;
@@ -92,6 +94,9 @@ export async function prepareRun(options: RunOptions): Promise<{ root: string; v
   if (!options.task.trim()) throw new FusionError("task must not be empty");
   if (!Number.isInteger(options.repairs) || options.repairs < 0 || options.repairs > 2) throw new FusionError("--repairs must be 0, 1, or 2");
   if (!Number.isFinite(options.timeoutSeconds) || options.timeoutSeconds <= 0) throw new FusionError("--timeout must be a positive number of seconds");
+  if (options.maxBudgetUsd !== undefined && (!Number.isFinite(options.maxBudgetUsd) || options.maxBudgetUsd <= 0)) {
+    throw new FusionError("--max-budget must be a positive number of USD");
+  }
   const root = await repoRoot(options.cwd);
   await headRevision(root);
   const env = options.env ?? process.env;
@@ -131,6 +136,9 @@ export async function runFusion(options: RunOptions, io: RunIO): Promise<RunResu
 
   if (dirty.length > 0) {
     warn(`your working tree has ${dirty.length} uncommitted change(s); they are NOT included. Fusion works from HEAD ${base.slice(0, 10)}.`);
+  }
+  if (options.maxBudgetUsd !== undefined && options.writer === "codex") {
+    warn(`--max-budget $${options.maxBudgetUsd} only applies to Claude; the codex writer runs without a budget cap.`);
   }
   if (!verifyCommand) {
     warn("NO VERIFY GATE: no --verify given and no package.json test script found. The patch will only be reviewed, not tested.");
@@ -177,6 +185,7 @@ export async function runFusion(options: RunOptions, io: RunIO): Promise<RunResu
       cwd: work,
       readOnly,
       timeoutSeconds: Math.max(1, Math.round(options.timeoutSeconds)),
+      ...(!readOnly && options.maxBudgetUsd !== undefined ? { maxUsd: options.maxBudgetUsd } : {}),
     });
     const logName = `${String(++stepCounter).padStart(2, "0")}-${kind}-${vendor}.log`;
     const label = `${kind === "review" ? "reviewer" : "writer"} ${vendor}${model ? ` (${model})` : ""}`;
@@ -317,6 +326,7 @@ export async function runFusion(options: RunOptions, io: RunIO): Promise<RunResu
     reviews,
     steps,
     repairsAllowed: options.repairs,
+    maxBudgetUsd: options.maxBudgetUsd ?? null,
     repairsUsed,
     files: diff.files,
     diffstat: diff.stat,

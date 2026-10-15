@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/); while the version is `0.x`, any
 release may contain breaking changes.
 
+## 0.2.1 - 2026-10-13
+
+### Changed
+
+- Published to npm as [`agent-fusion`](https://www.npmjs.com/package/agent-fusion).
+  Install or run it with `npx agent-fusion`; the command is still `fusion`. The
+  README, help text and website now use the npm command instead of
+  `npx github:inseat-labs/fusion`, which still works.
+
 ## 0.2.0 - 2026-10-13
 
 Fusion now executes. One command runs a write -> verify -> review -> repair

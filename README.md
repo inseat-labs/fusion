@@ -3,7 +3,7 @@
 One command: Claude writes, your tests check, Codex reviews, one repair — you
 get a verified patch; your branch stays untouched.
 
-![fusion run: Claude writes, tests pass, Codex approves, then fusion apply](docs/demo.gif)
+![fusion run: Claude writes, tests pass, Codex approves, then fusion apply](https://raw.githubusercontent.com/inseat-labs/fusion/main/docs/demo.gif)
 
 <sub>A real run: Fusion adding its own <code>--max-budget</code> option (task text shortened; waits sped up from 5m 48s).</sub>
 
@@ -17,9 +17,9 @@ Requires Node.js 22+, git, and the `claude` and `codex` CLIs installed and
 logged in. From inside any git repo with at least one commit:
 
 ```bash
-npx github:inseat-labs/fusion run "Fix the failing slugify tests" --verify "npm test"
+npx agent-fusion run "Fix the failing slugify tests" --verify "npm test"
 # read the summary, then:
-npx github:inseat-labs/fusion apply latest   # git apply --3way into your working tree
+npx agent-fusion apply latest   # git apply --3way into your working tree
 ```
 
 When installed, the same commands are `fusion run` and `fusion apply`.

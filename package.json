@@ -1,6 +1,6 @@
 {
-  "name": "@inseat-labs/fusion",
-  "version": "0.2.0",
+  "name": "agent-fusion",
+  "version": "0.2.1",
   "description": "One command: Claude writes, your tests check, Codex reviews, one repair. You get a verified patch in an isolated git worktree and a ledger of which agent delivers in your repo.",
   "license": "Apache-2.0",
   "type": "module",

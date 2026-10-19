@@ -1,5 +1,7 @@
 # Fusion
 
+[![npm](https://img.shields.io/npm/v/agent-fusion)](https://www.npmjs.com/package/agent-fusion) [![CI](https://github.com/inseat-labs/fusion/actions/workflows/ci.yml/badge.svg)](https://github.com/inseat-labs/fusion/actions/workflows/ci.yml) [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+
 One command: Claude writes, your tests check, Codex reviews, one repair — you
 get a verified patch; your branch stays untouched.
 

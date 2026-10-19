@@ -3,14 +3,14 @@
 [![npm](https://img.shields.io/npm/v/agent-fusion)](https://www.npmjs.com/package/agent-fusion) [![CI](https://github.com/inseat-labs/fusion/actions/workflows/ci.yml/badge.svg)](https://github.com/inseat-labs/fusion/actions/workflows/ci.yml) [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
 One command: Claude writes, your tests check, Codex reviews, one repair — you
-get a verified patch; your branch stays untouched.
+get a tested, reviewed patch; your branch stays untouched.
 
 ![fusion run: Claude writes, tests pass, Codex approves, then fusion apply](https://raw.githubusercontent.com/inseat-labs/fusion/main/docs/demo.gif)
 
 <sub>A real run: Fusion adding its own <code>--max-budget</code> option (task text shortened; waits sped up from 5m 48s).</sub>
 
-> Status: early (0.x, unreleased runtime). `run` executes real Claude Code and
-> Codex CLIs with your own logins. Expect rough edges; see
+> Status: early (0.2, on npm as `agent-fusion`). `run` executes real Claude
+> Code and Codex CLIs with your own logins and quota. Expect rough edges; see
 > [Limitations](#limitations).
 
 ## 30-second quickstart
@@ -24,7 +24,12 @@ npx agent-fusion run "Fix the failing slugify tests" --verify "npm test"
 npx agent-fusion apply latest   # git apply --3way into your working tree
 ```
 
-When installed, the same commands are `fusion run` and `fusion apply`.
+Or install it globally with `npm i -g agent-fusion`; the same commands are
+then `fusion run` and `fusion apply`.
+
+Without `--yes`, Fusion shows the plan (writer, verify command, reviewer,
+repairs) and asks before it starts. It only asks in an interactive terminal;
+with no TTY it starts straight away.
 
 Omit `--verify` and Fusion uses `npm test` when `package.json` has a test
 script; with no verify command at all it warns loudly that nothing will be
@@ -117,7 +122,7 @@ default provider was a gateway without access, so the run used
 | --- | --- | --- |
 | [openai/codex-plugin-cc](https://github.com/openai/codex-plugin-cc) | Codex review commands you invoke manually inside a Claude Code session | You decide when to ask for a review and what to do with it |
 | [claude-squad](https://github.com/smtg-ai/claude-squad), [vibe-kanban](https://github.com/BloopAI/vibe-kanban) | Managers for many parallel agent sessions in separate worktrees | A human reviews each session's result |
-| agent-orchestrator | Orchestration for teams of agents working on larger tasks | Depends on the configured workflow |
+| [agent-orchestrator](https://github.com/OrchestratorInc/agent-orchestrator) (Orchestrator.inc, formerly ComposioHQ) | Desktop workspace where a planning agent splits larger work across many coding-agent workers, each in its own branch and worktree, tracked on a Kanban | Your CI and pull-request reviews, shown on the board; you merge |
 | **Fusion** | One task, one writer, one cross-vendor reviewer, a fixed loop | Your test command gates it, the other vendor reviews it, you apply it |
 
 What Fusion adds:
@@ -175,11 +180,19 @@ fusion stats                 per-writer first-try verify pass rate, approval rat
 - Works from `HEAD`: uncommitted changes are not included (Fusion warns).
 - Cost is only shown when a CLI reports it (Claude Code does; Codex reports
   tokens only). `--max-budget` caps each Claude step; there is no cap across
-  the whole run and none for Codex. Real runs on this repo cost $0.23–$2.02.
+  the whole run and none for Codex. Real runs so far cost $0.23–$2.02 in
+  Claude usage.
 - The reviewer verdict is a JSON heuristic: bare, fenced, or embedded JSON is
   accepted; anything else is "unavailable". A reviewer can still be wrong.
-- Your verify command runs with your permissions in the worktree; it is not
-  sandboxed. `node_modules` is symlinked from your repo when present.
+- Only run Fusion on repositories you trust. The Claude steps (the writer,
+  and the reviewer with `--reviewer claude`) run `claude -p` with your Claude
+  Code settings plus the repo's own committed `.claude/` settings (including
+  hooks) and `.mcp.json`; Fusion does not pass `--setting-sources` or
+  `--strict-mcp-config` to restrict them. Your verify command runs with your
+  permissions and environment in the worktree; it is not sandboxed.
+- The worktree is a checkout of `HEAD`: gitignored and untracked files such as
+  `.env` are not copied into it. Only `node_modules` is linked, as a symlink to
+  your repo's copy, so anything written there lands in your `node_modules`.
 - `apply` uses `git apply --3way`; if your tree drifted from the run's base,
   resolve conflicts yourself. There is no base-drift check yet.
 

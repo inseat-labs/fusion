@@ -4,6 +4,22 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/); while the version is `0.x`, any
 release may contain breaking changes.
 
+## Unreleased
+
+### Changed
+
+- Documentation now matches the released 0.2.x runtime. `SECURITY.md` describes
+  what `run` executes, says the verify command is not sandboxed, and states the
+  known gap: the repository's own `.claude/` hooks and `.mcp.json` are not
+  disabled. The README adds that warning to Limitations, notes that gitignored
+  files such as `.env` are not in the worktree, shows `npm i -g agent-fusion`,
+  says "tested, reviewed patch" instead of "verified patch", and links
+  agent-orchestrator in the comparison. `docs/THREAT_MODEL.md` separates what
+  is implemented today from what is planned. `CONTRIBUTING.md` drops the
+  Milestone 0 rules against spawning processes and adding runtime execution
+  and describes the current development workflow. ROADMAP, PRODUCT_PLAN and
+  HANDOFF no longer call the shipped runtime "unreleased".
+
 ## 0.2.1 - 2026-10-13
 
 ### Changed

@@ -20,10 +20,11 @@ no process execution or repository mutation.
 
 ## Milestone 1: isolated Single workflow
 
-Status: largely shipped as `fusion run` (Unreleased). One writer runs in a
-detached worktree from `HEAD`, the user's verify command gates it, the process
-supervisor enforces per-step timeouts on the whole process group, and the base
-worktree is never modified. Application is the user's explicit `apply`
+Status: largely shipped as `fusion run` in 0.2.0 (2026-10-13; on npm as
+`agent-fusion` since 0.2.1). One writer runs in a detached worktree from
+`HEAD`, the user's verify command gates it, the process supervisor enforces
+per-step timeouts on the whole process group, and the base worktree is never
+modified. Application is the user's explicit `apply`
 (`git apply --3way`). Still open: boundary-lineage envelopes, a base-drift
 check before apply, and fault-injection tests for cancellation cleanup.
 Verified with one real Claude Code writer + Codex reviewer run on 2026-09-30
@@ -42,9 +43,9 @@ Exit criterion: fault-injection tests establish atomicity and cleanup behavior.
 
 ## Milestone 2: Cascade and Critique
 
-Status: Critique with bounded repair is shipped in `run` (cross-vendor read-only
-reviewer, up to two repairs, re-verify and re-review after each). Per-run
-outcomes go to `.fusion/ledger.jsonl` and `fusion stats`. Cascade
+Status: Critique with bounded repair shipped in `run` in 0.2.0 (cross-vendor
+read-only reviewer, up to two repairs, re-verify and re-review after each).
+Per-run outcomes go to `.fusion/ledger.jsonl` and `fusion stats`. Cascade
 escalation and per-leg cost for Codex (the CLI reports tokens, not cost) are
 still open.
 

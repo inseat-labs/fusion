@@ -26,14 +26,15 @@ Implemented:
 
 Not implemented in 0.1.0: anything that runs.
 
-### Unreleased: the `run` runtime (2026-09-30)
+### 0.2.x: the `run` runtime (released 2026-10-13, on npm as `agent-fusion`)
 
 `fusion run` now executes one writer -> verify -> read-only review ->
 bounded repair loop in `git worktree add --detach .fusion/runs/<id>/work HEAD`
-(`src/runtime/`), plus `apply`, `discard`, `list`, `stats`. `npm test` runs 80
-tests, including fake-agent runs in real temp git repos. One real end-to-end
-run (Claude Code 2.1.285 writer, codex-cli 0.153.4 reviewer) is captured in
-the README. Still not implemented: judge, Cascade, Parallel, atomic apply with
+(`src/runtime/`), plus `apply`, `discard`, `list`, `stats`, and a per-step
+Claude budget cap (`--max-budget`). Released as 0.2.0 and published to npm as
+`agent-fusion` 0.2.1. `npm test` runs 93 tests, including fake-agent runs in
+real temp git repos. One real end-to-end run (Claude Code 2.1.285 writer,
+codex-cli 0.153.4 reviewer) is captured in the README. Still not implemented: judge, Cascade, Parallel, atomic apply with
 base-drift check, boundary-lineage envelopes.
 
 ## Decisions taken
@@ -57,6 +58,8 @@ base-drift check, boundary-lineage envelopes.
    supervisor, worktree isolation, and `origin: "runtime"` events exist.
 3. Inspect isolated worktrees for `.claude/settings.json` hooks and `.mcp.json`
    before launching `claude -p`, since `-p` runs them without a trust prompt.
+   Not done yet: Fusion passes neither `--setting-sources` nor
+   `--strict-mcp-config`, and README Limitations and SECURITY.md say so.
 4. Do not add Parallel, learned routing, textual merge, or any Jev SDK.
 5. Run the full suite and build before handing off and report exact commands
    and outcomes.

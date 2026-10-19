@@ -1,5 +1,38 @@
 # Threat Model
 
+## Implemented today vs planned
+
+Most controls below are design goals. As of 0.2.1, `fusion run` implements
+these:
+
+- The writer works in a detached git worktree from `HEAD`. `run` never
+  modifies your branch or working tree; only `fusion apply` does, with
+  `git apply --3way`.
+- Agent CLIs are spawned with an argument array (no shell), each in its own
+  process group. A per-step timeout (default 900s) and Ctrl-C kill the whole
+  group. Captured output is capped at 4 MiB per stream.
+- Provider permission modes: the writer uses `claude --permission-mode
+  acceptEdits` or `codex exec --sandbox workspace-write`; the reviewer uses
+  `claude --permission-mode dontAsk` with only Read/Grep/Glob, or
+  `codex exec --sandbox read-only`.
+- Deterministic gate: a run is `ready` only if the verify command passed and
+  the reviewer approved. Unparseable review output is never an approval.
+- Repairs are bounded (at most two). `--max-budget` caps each Claude write and
+  repair step through the Claude CLI.
+- New files under `.claude/` or `.codex/` are left out of the patch and listed
+  as a warning.
+
+Not implemented yet: an outer process or filesystem sandbox; disabling the
+repository's own `.claude/` hooks and `.mcp.json` servers (no
+`--setting-sources` or `--strict-mcp-config`); scrubbing the environment that
+agents and the verify command inherit; sandboxing the verify command; redacting
+run logs; patch scanning, path and size limits, or surfacing sensitive-file
+changes; symlink and path-containment checks; a base-drift check before
+`apply`; workflow-wide budgets, disk quotas, and limits on log size; and the
+judge. `node_modules` is linked into the worktree as a symlink to your copy, so
+writes there are not isolated. Treat the sections below as the plan, not as a
+description of current behavior.
+
 ## Scope and assets
 
 The planned controller crosses boundaries among an untrusted repository, local

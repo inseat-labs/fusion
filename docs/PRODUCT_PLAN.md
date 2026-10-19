@@ -32,9 +32,10 @@ run repository checks, mutate repositories, contain a learned router, launch
 Parallel candidates, merge patches, host credentials, or act as a general agent
 platform.
 
-Since then, the unreleased `run` command executes the Single and Critique
-workflows for real: one writer CLI in an isolated worktree, the user's verify
-command, a read-only reviewer from the other vendor, and up to two repairs.
+Since 0.2.0 (on npm as `agent-fusion`), the `run` command executes the Single
+and Critique workflows for real: one writer CLI in an isolated worktree, the
+user's verify command, a read-only reviewer from the other vendor, and up to
+two repairs.
 It still does not merge patches, host credentials, or run Parallel candidates.
 
 ## User experience principles

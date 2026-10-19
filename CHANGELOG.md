@@ -4,10 +4,11 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/); while the version is `0.x`, any
 release may contain breaking changes.
 
-## Unreleased
+## 0.2.2 - 2026-10-19
 
 ### Changed
 
+- `fusion --help` says "tested, reviewed patch" instead of "verified patch".
 - Documentation now matches the released 0.2.x runtime. `SECURITY.md` describes
   what `run` executes, says the verify command is not sandboxed, and states the
   known gap: the repository's own `.claude/` hooks and `.mcp.json` are not

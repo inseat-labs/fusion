@@ -19,7 +19,7 @@ import { SCENARIOS, simulateProgress, SimulationError, type Scenario } from "../
 import { validateProgressStream } from "../progress/validate.js";
 
 const USAGE = `fusion — one command: one agent writes, your tests check, the other vendor reviews, one repair.
-You get a verified patch in an isolated worktree; your branch is never touched.
+You get a tested, reviewed patch in an isolated worktree; your branch is never touched.
 
 Usage:
   fusion run "<task>" [--verify "<cmd>"] [--writer claude|codex] [--reviewer codex|claude|none]
